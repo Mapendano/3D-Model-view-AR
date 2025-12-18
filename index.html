@@ -1,140 +1,21 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-commerce RA - Visualiseur 3D</title>
-    <!-- Importation du composant model-viewer de Google -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            margin: 0;
-            background-color: #f3f4f6;
-            font-family: 'Inter', sans-serif;
-        }
-        model-viewer {
-            width: 100%;
-            height: 70vh;
-            background-color: #ffffff;
-            --poster-color: transparent;
-        }
-        .controls {
-            padding: 20px;
-            background: white;
-            border-radius: 20px 20px 0 0;
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
-        }
-        .color-dot {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s;
-        }
-        .color-dot:hover {
-            transform: scale(1.1);
-        }
-        .active-color {
-            border-color: #3b82f6;
-        }
-    </style>
+    <title>3D Model Viewer</title>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-
-    <!-- Header -->
-    <header class="p-4 bg-white shadow-sm flex justify-between items-center">
-        <h1 class="text-xl font-bold text-gray-800">Shop3D AR</h1>
-        <div class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
-            Prêt pour la RA
-        </div>
-    </header>
-
-    <!-- Zone de Visualisation -->
-    <div class="flex-grow relative">
-        <model-viewer 
-            id="viewer"
-            src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" 
-            ios-src="https://modelviewer.dev/shared-assets/models/Astronaut.usdz"
-            ar 
-            ar-modes="webxr scene-viewer quick-look" 
-            camera-controls 
-            auto-rotate 
-            shadow-intensity="1" 
-            exposure="1"
-            environment-image="neutral"
-            alt="Un modèle 3D interactif">
-            
-            <button slot="ar-button" class="absolute bottom-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2">
-                <span>📱 Voir chez moi (RA)</span>
-            </button>
-
-            <div id="ar-prompt" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 text-white p-4 rounded-lg">
-                Bougez votre téléphone pour détecter le sol
-            </div>
+<body>
+    <script type="module">
+      import {html, render} from 'https://cdn.skypack.dev/lit-html';
+      const modelViewerTemplate = html`
+        <model-viewer
+          auto-rotate
+          camera-controls
+          src="@Mapendano/3D-Model-view-AR/files/30811842cceeb1775373083283ffcb61.glb">
         </model-viewer>
-    </div>
-
-    <!-- Contrôles de l'interface -->
-    <div class="controls">
-        <div class="max-w-md mx-auto">
-            <h2 class="text-lg font-semibold mb-4 text-gray-700">Personnalisation</h2>
-            
-            <!-- Changement de l'arrière-plan -->
-            <div class="mb-6">
-                <p class="text-sm text-gray-500 mb-2">Couleur d'arrière-plan</p>
-                <div class="flex gap-4">
-                    <button onclick="changeBg('#ffffff')" class="color-dot bg-white border-gray-200 shadow-sm"></button>
-                    <button onclick="changeBg('#f3f4f6')" class="color-dot bg-gray-100 shadow-sm"></button>
-                    <button onclick="changeBg('#fee2e2')" class="color-dot bg-red-100 shadow-sm"></button>
-                    <button onclick="changeBg('#dcfce7')" class="color-dot bg-green-100 shadow-sm"></button>
-                    <button onclick="changeBg('#dbeafe')" class="color-dot bg-blue-100 shadow-sm"></button>
-                    <button onclick="changeBg('#111827')" class="color-dot bg-gray-900 shadow-sm"></button>
-                </div>
-            </div>
-
-            <!-- Paramètres d'éclairage -->
-            <div class="mb-6">
-                <p class="text-sm text-gray-500 mb-2">Environnement (Réflexions)</p>
-                <select onchange="changeEnv(this.value)" class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="neutral">Neutre (Défaut)</option>
-                    <option value="https://modelviewer.dev/shared-assets/environments/spruit_sunrise_1k_HDR.hdr">Lever de soleil</option>
-                    <option value="https://modelviewer.dev/shared-assets/environments/aircraft_workshop_01_1k.hdr">Atelier</option>
-                </select>
-            </div>
-
-            <!-- Instructions -->
-            <div class="bg-gray-50 p-4 rounded-xl border border-dashed border-gray-300">
-                <p class="text-xs text-gray-600">
-                    <strong>Note :</strong> Pour la RA, utilisez un appareil Android (Chrome) ou iOS (Safari) compatible. L'application utilise la détection automatique des surfaces planes.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const viewer = document.querySelector('#viewer');
-
-        // Fonction pour changer la couleur de fond du visualiseur
-        function changeBg(color) {
-            viewer.style.backgroundColor = color;
-            // Optionnel: On peut aussi changer le poster-color
-            viewer.setAttribute('poster-color', color);
-        }
-
-        // Fonction pour changer l'environnement lumineux (HDRI)
-        function changeEnv(envUrl) {
-            viewer.setAttribute('environment-image', envUrl);
-        }
-
-        // Gestion des événements AR
-        viewer.addEventListener('ar-status', (event) => {
-            if (event.detail.status === 'failed') {
-                console.error("Le lancement de la RA a échoué");
-            }
-        });
+      `;
+      render(modelViewerTemplate, document.body);
     </script>
 </body>
 </html>
-
